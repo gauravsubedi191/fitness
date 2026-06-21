@@ -15,7 +15,9 @@ import {
 import { 
   signInWithPopup, 
   signOut as firebaseSignOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
 } from "firebase/auth";
 import { 
   collection, 
@@ -60,6 +62,8 @@ interface WorkoutContextType {
   addToast: (text: string, type?: "success" | "info" | "achievement") => void;
   removeToast: (id: string) => void;
   loginWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, pass: string) => Promise<void>;
+  registerWithEmail: (email: string, pass: string) => Promise<void>;
   loginAsDemo: () => void;
   logout: () => Promise<void>;
   
@@ -144,6 +148,36 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         // Fallback to mock/local storage mode so user does not get stuck
         setIsFirebaseMode(false);
         mockLogin();
+      }
+    } else {
+      mockLogin();
+    }
+  };
+
+  const loginWithEmail = async (email: string, pass: string) => {
+    if (isFirebaseMode && auth) {
+      try {
+        const result = await signInWithEmailAndPassword(auth, email, pass);
+        setUser(result.user);
+        addToast(`Welcome back! 👋`, "success");
+      } catch (error: any) {
+        console.error("Email sign-in error", error);
+        addToast("Invalid email or password.", "info");
+      }
+    } else {
+      mockLogin();
+    }
+  };
+
+  const registerWithEmail = async (email: string, pass: string) => {
+    if (isFirebaseMode && auth) {
+      try {
+        const result = await createUserWithEmailAndPassword(auth, email, pass);
+        setUser(result.user);
+        addToast(`Account created successfully! 🎉`, "success");
+      } catch (error: any) {
+        console.error("Email registration error", error);
+        addToast("Failed to create account. Email may be in use.", "info");
       }
     } else {
       mockLogin();
@@ -605,6 +639,8 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         addToast,
         removeToast,
         loginWithGoogle,
+        loginWithEmail,
+        registerWithEmail,
         loginAsDemo,
         logout,
         saveSession,

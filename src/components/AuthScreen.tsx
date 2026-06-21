@@ -3,11 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Dumbbell, LogIn, ChevronRight, UserCheck } from "lucide-react";
+import React, { useState } from "react";
+import { Dumbbell, LogIn, ChevronRight, UserCheck, Mail, Lock, UserPlus } from "lucide-react";
 import { useWorkout } from "../context/WorkoutContext";
 
 export function AuthScreen() {
-  const { loginWithGoogle, loginAsDemo, firebaseEnabled } = useWorkout();
+  const { loginWithGoogle, loginWithEmail, registerWithEmail, loginAsDemo, firebaseEnabled } = useWorkout();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const handleEmailAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    if (isRegistering) {
+      registerWithEmail(email, password);
+    } else {
+      loginWithEmail(email, password);
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-950 px-6 text-gray-100">
@@ -44,24 +58,64 @@ export function AuthScreen() {
 
         {/* Action Button */}
         <div className="mt-8 space-y-4">
-          <button
-            onClick={loginWithGoogle}
-            className="group flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-400 py-4 text-sm font-bold text-black shadow-lg shadow-green-500/10 transition-all duration-300 hover:scale-[1.01] active:translate-y-0.5 cursor-pointer"
-          >
-            <LogIn className="h-5 w-5" />
-            <span>Connect with Google Auth</span>
-            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </button>
+          <form onSubmit={handleEmailAuth} className="flex flex-col gap-3">
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email address"
+                required
+                className="w-full rounded-xl border border-gray-800 bg-gray-900/50 py-3.5 pl-10 pr-4 text-sm text-gray-200 outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+              />
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                required
+                className="w-full rounded-xl border border-gray-800 bg-gray-900/50 py-3.5 pl-10 pr-4 text-sm text-gray-200 outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="group flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-400 py-3.5 text-sm font-bold text-black shadow-lg shadow-green-500/10 transition-all duration-300 hover:scale-[1.01] active:translate-y-0.5 cursor-pointer"
+            >
+              {isRegistering ? <UserPlus className="h-5 w-5" /> : <LogIn className="h-5 w-5" />}
+              <span>{isRegistering ? "Create Account" : "Sign In with Email"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsRegistering(!isRegistering)}
+              className="text-xs text-gray-400 hover:text-green-400 underline-offset-4 hover:underline mt-1"
+            >
+              {isRegistering ? "Already have an account? Sign In" : "Need an account? Sign Up"}
+            </button>
+          </form>
 
           <div className="relative flex py-2 items-center">
             <div className="flex-grow border-t border-gray-900"></div>
-            <span className="flex-shrink mx-4 text-gray-600 text-[10px] font-black uppercase tracking-wider">or continue offline</span>
+            <span className="flex-shrink mx-4 text-gray-600 text-[10px] font-black uppercase tracking-wider">or</span>
             <div className="flex-grow border-t border-gray-900"></div>
           </div>
 
           <button
+            type="button"
+            onClick={loginWithGoogle}
+            className="group flex w-full items-center justify-center gap-3 rounded-xl border border-gray-800 bg-gray-900/30 py-3.5 text-sm font-bold text-gray-300 transition-all hover:bg-gray-800 active:translate-y-0.5 cursor-pointer"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="currentColor"></path></svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <button
+            type="button"
             onClick={loginAsDemo}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-900 bg-gray-900/30 py-3.5 text-xs font-bold text-gray-300 transition-all hover:bg-gray-900/50 active:translate-y-0.5 cursor-pointer"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-900 bg-gray-900/30 py-3 text-xs font-bold text-gray-400 transition-all hover:bg-gray-900/50 active:translate-y-0.5 cursor-pointer"
           >
             <UserCheck className="h-4 w-4 text-green-400" />
             <span>Use Demo / Offline mode</span>
