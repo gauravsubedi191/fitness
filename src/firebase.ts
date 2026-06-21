@@ -24,8 +24,6 @@ import {
   deleteDoc 
 } from "firebase/firestore";
 
-// The standard placeholder credentials.
-// Users can provide env variables (prefixed with VITE_FIREBASE_) or paste details directly.
 const metaEnv = (import.meta as any).env || {};
 const firebaseConfig = {
   apiKey: metaEnv.VITE_FIREBASE_API_KEY || "AIzaSyCoUP59HLEPzQUugmjTfTWN3GLNtTOZ6sA",
