@@ -28,12 +28,12 @@ import {
 // Users can provide env variables (prefixed with VITE_FIREBASE_) or paste details directly.
 const metaEnv = (import.meta as any).env || {};
 const firebaseConfig = {
-  apiKey: metaEnv.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
-  authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || "YOUR_PROJECT.firebaseapp.com",
-  projectId: metaEnv.VITE_FIREBASE_PROJECT_ID || "YOUR_PROJECT_ID",
-  storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || "YOUR_PROJECT.appspot.com",
-  messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || "YOUR_SENDER_ID",
-  appId: metaEnv.VITE_FIREBASE_APP_ID || "YOUR_APP_ID"
+  apiKey: metaEnv.VITE_FIREBASE_API_KEY || "AIzaSyCoUP59HLEPzQUugmjTfTWN3GLNtTOZ6sA",
+  authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || "fitness-b1352.firebaseapp.com",
+  projectId: metaEnv.VITE_FIREBASE_PROJECT_ID || "fitness-b1352",
+  storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || "fitness-b1352.firebasestorage.app",
+  messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || "701058556697",
+  appId: metaEnv.VITE_FIREBASE_APP_ID || "1:701058556697:web:74e5198022a6a1f85ddb88"
 };
 
 // Check if Firebase is actually configured with actual keys (i.e. not placeholders)
