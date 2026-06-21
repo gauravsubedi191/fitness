@@ -31,4 +31,4 @@ jobs:
         with:
           args: deploy --only hosting --project fitness-b1352
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FITNESS_B1352 }}
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_FITNESS_B1352 }}
