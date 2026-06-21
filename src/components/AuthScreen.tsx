@@ -112,30 +112,7 @@ export function AuthScreen() {
             <span>Continue with Google</span>
           </button>
 
-          <button
-            type="button"
-            onClick={loginAsDemo}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-900 bg-gray-900/30 py-3 text-xs font-bold text-gray-400 transition-all hover:bg-gray-900/50 active:translate-y-0.5 cursor-pointer"
-          >
-            <UserCheck className="h-4 w-4 text-green-400" />
-            <span>Use Demo / Offline mode</span>
-          </button>
-
-          <div className="rounded-xl bg-blue-500/5 p-3.5 border border-blue-500/10 text-[11px] text-gray-400 text-left leading-relaxed">
-            <div className="flex items-center gap-2 font-bold text-blue-400 uppercase tracking-wide text-[10px]">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
-              Sign-In Configuration Notice
-            </div>
-            <p className="mt-1.5 text-gray-500">
-              Note: Firebase Google Auth requires a configured Google Identity Provider in your Firebase Console project. If configuration issues occur, choose the offline mode to save training sessions safely in local storage offline.
-            </p>
-          </div>
         </div>
-
-        {/* Footer info */}
-        <p className="mt-12 text-xs text-gray-500">
-          Syncs securely via Firebase once configured in your development credentials.
-        </p>
       </div>
     </div>
   );
