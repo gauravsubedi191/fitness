@@ -1,0 +1,6 @@
+{
+  "name": "Personal Fitness Tracker",
+  "description": "A complete, production-ready personal fitness tracker web app allowing gym-goers (like beginners work out logging, body weight tracking, github style streaks calendar, and weekly planning) on Firebase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
