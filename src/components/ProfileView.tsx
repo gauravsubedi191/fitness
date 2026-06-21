@@ -14,7 +14,10 @@ import {
   Activity, 
   Plus, 
   Weight,
-  Sparkles 
+  Sparkles,
+  Lock,
+  Trash2,
+  Edit3
 } from "lucide-react";
 import { useWorkout } from "../context/WorkoutContext";
 import { WeeklyPlan, BodyMeasurementsLog } from "../types";
@@ -31,7 +34,10 @@ export function ProfileView() {
     updateSettings, 
     logout, 
     streakCount,
-    firebaseEnabled 
+    firebaseEnabled,
+    updateUserProfile,
+    updateUserPassword,
+    deleteUserAccount
   } = useWorkout();
 
   // Weekly Planner Form States
@@ -49,6 +55,33 @@ export function ProfileView() {
 
   // Settings parameter states
   const [restTimer, setRestTimer] = useState<number>(settings.restTimerDefault || 90);
+
+  // User Management States
+  const [editProfileMode, setEditProfileMode] = useState(false);
+  const [editName, setEditName] = useState(user?.displayName || "");
+  const [editPhoto, setEditPhoto] = useState(user?.photoURL || "");
+  
+  const [newPassword, setNewPassword] = useState("");
+  const [showDangerZone, setShowDangerZone] = useState(false);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await updateUserProfile(editName, editPhoto);
+    setEditProfileMode(false);
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) return;
+    await updateUserPassword(newPassword);
+    setNewPassword("");
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirm("WARNING: This will permanently delete your account login access. Your data will be safely orphaned and can be recovered by an admin later. Are you absolutely sure?")) {
+      await deleteUserAccount();
+    }
+  };
 
   const daysLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const daysKeys: (keyof WeeklyPlan)[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -424,6 +457,85 @@ export function ProfileView() {
               onChange={(e) => handleUpdateRestSetting(parseInt(e.target.value))}
               className="w-full accent-green-500 rounded-lg"
             />
+          </div>
+        </div>
+
+        {/* ACCOUNT MANAGEMENT SECTION */}
+        <div className="rounded-2xl border border-gray-900 bg-gray-900/30 p-5 space-y-4">
+          <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+            <Lock className="h-4 w-4 text-blue-400" />
+            <span>Account Management</span>
+          </h3>
+
+          {!editProfileMode ? (
+            <button
+              onClick={() => setEditProfileMode(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-800 py-3 text-xs font-bold text-white transition-all hover:bg-gray-700 active:scale-95"
+            >
+              <Edit3 className="h-4 w-4" />
+              <span>Edit Profile Details</span>
+            </button>
+          ) : (
+            <form onSubmit={handleUpdateProfile} className="space-y-3 bg-gray-950/40 p-4 rounded-xl border border-gray-900">
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block">Display Name</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-gray-850 bg-gray-900 py-2.5 px-3 text-xs font-bold text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block">Photo URL</label>
+                <input
+                  type="url"
+                  value={editPhoto}
+                  onChange={(e) => setEditPhoto(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-gray-850 bg-gray-900 py-2.5 px-3 text-xs font-bold text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setEditProfileMode(false)} className="flex-1 bg-gray-800 text-gray-300 rounded-lg py-2 text-xs font-bold">Cancel</button>
+                <button type="submit" className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-xs font-bold">Save</button>
+              </div>
+            </form>
+          )}
+
+          <div className="border-t border-gray-900/50 pt-4">
+            <form onSubmit={handleUpdatePassword} className="flex gap-2">
+              <input
+                type="password"
+                placeholder="New Password (min 6 chars)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="flex-1 rounded-xl border border-gray-850 bg-gray-900 py-2.5 px-3 text-xs font-bold text-white focus:outline-none focus:border-blue-500"
+              />
+              <button type="submit" disabled={!newPassword || newPassword.length < 6} className="bg-gray-800 text-white rounded-xl px-4 text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95">Update</button>
+            </form>
+          </div>
+
+          <div className="border-t border-gray-900/50 pt-4">
+            {!showDangerZone ? (
+              <button
+                onClick={() => setShowDangerZone(true)}
+                className="text-[10px] font-bold text-gray-500 hover:text-red-400 transition-colors uppercase tracking-widest underline underline-offset-2"
+              >
+                Show Danger Zone
+              </button>
+            ) : (
+              <div className="rounded-xl border border-red-900/30 bg-red-950/10 p-4 space-y-3">
+                <p className="text-[10px] text-red-400 font-bold uppercase tracking-wide">Danger Zone: Delete Account</p>
+                <p className="text-[10px] text-gray-400">This action permanently revokes login access. Your historic data is safely orphaned and can be recovered by an admin. You may need to sign out and sign back in to verify your identity before deleting.</p>
+                <button
+                  onClick={handleDeleteAccount}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-900/50 border border-red-800 py-2.5 text-[11px] font-bold text-red-100 transition-all hover:bg-red-800 active:scale-95"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span>Permanently Delete Account</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

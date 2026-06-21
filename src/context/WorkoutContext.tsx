@@ -17,7 +17,10 @@ import {
   signOut as firebaseSignOut, 
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  updateProfile,
+  updatePassword,
+  deleteUser
 } from "firebase/auth";
 import { 
   collection, 
@@ -66,6 +69,11 @@ interface WorkoutContextType {
   registerWithEmail: (email: string, pass: string) => Promise<void>;
   loginAsDemo: () => void;
   logout: () => Promise<void>;
+  
+  // User Management
+  updateUserProfile: (displayName: string, photoURL: string) => Promise<void>;
+  updateUserPassword: (newPassword: string) => Promise<void>;
+  deleteUserAccount: () => Promise<void>;
   
   // Data actions
   saveSession: (session: WorkoutSession) => Promise<void>;
@@ -224,6 +232,70 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     setBodyWeights([]);
     setMeasurementsList([]);
     setCustomExercises([]);
+  };
+
+  const updateUserProfile = async (displayName: string, photoURL: string) => {
+    if (isFirebaseMode && auth && auth.currentUser) {
+      try {
+        await updateProfile(auth.currentUser, { displayName, photoURL });
+        setUser({ ...auth.currentUser, displayName, photoURL });
+        addToast("Profile updated successfully!", "success");
+      } catch (error: any) {
+        console.error("Profile update error", error);
+        addToast(error.message || "Failed to update profile", "info");
+        throw error;
+      }
+    } else if (!isFirebaseMode && user) {
+      const updated = { ...user, displayName, photoURL };
+      setUser(updated);
+      localStorage.setItem("fit_mock_user", JSON.stringify(updated));
+      addToast("Local profile updated!", "success");
+    }
+  };
+
+  const updateUserPassword = async (newPassword: string) => {
+    if (isFirebaseMode && auth && auth.currentUser) {
+      try {
+        await updatePassword(auth.currentUser, newPassword);
+        addToast("Password updated successfully!", "success");
+      } catch (error: any) {
+        console.error("Password update error", error);
+        if (error.code === 'auth/requires-recent-login') {
+          addToast("Please sign out and sign in again before changing password.", "info");
+        } else {
+          addToast(error.message || "Failed to update password", "info");
+        }
+        throw error;
+      }
+    } else {
+      addToast("Cannot change password in Demo Mode.", "info");
+    }
+  };
+
+  const deleteUserAccount = async () => {
+    if (isFirebaseMode && auth && auth.currentUser) {
+      try {
+        // Soft delete: mark profile in Firestore as deleted
+        const uid = auth.currentUser.uid;
+        await setDoc(doc(db, `users/${uid}/profile/settings`), { deletedAt: new Date().toISOString() }, { merge: true });
+        
+        await deleteUser(auth.currentUser);
+        setUser(null);
+        addToast("Account securely deleted. Data remains recoverable by admin.", "info");
+      } catch (error: any) {
+        console.error("Delete user error", error);
+        if (error.code === 'auth/requires-recent-login') {
+          addToast("Please sign out and sign in again before deleting account.", "info");
+        } else {
+          addToast(error.message || "Failed to delete account", "info");
+        }
+        throw error;
+      }
+    } else {
+      setUser(null);
+      localStorage.removeItem("fit_mock_user");
+      addToast("Local account deleted.", "info");
+    }
   };
 
   // Listen to Authentication State
@@ -643,6 +715,9 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         registerWithEmail,
         loginAsDemo,
         logout,
+        updateUserProfile,
+        updateUserPassword,
+        deleteUserAccount,
         saveSession,
         deleteSession,
         saveBodyWeight,
